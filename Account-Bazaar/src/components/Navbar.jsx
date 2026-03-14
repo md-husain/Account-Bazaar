@@ -3,6 +3,7 @@ import {assets} from '../assets/assets'
 import { Link, useNavigate } from 'react-router-dom'
 import { BoxIcon, GrabIcon, ListIcon, MenuIcon, MessageCircleHeartIcon, XIcon } from 'lucide-react'
 import {useClerk, useUser, UserButton} from '@clerk/react'
+import AccountLogo from '../assets/Account_bazaar.png';
 function Navbar() {
         const {user} = useUser()
         const {openSignIn} = useClerk()
@@ -14,7 +15,7 @@ function Navbar() {
           <nav className='h-20'>
                 <div className='fixed left-0 top-0 right-0 z-100 flex items-center justify-between px-6 md:px-16 lg:px-24 xl:px-32 py-4 border-b border-gray-300 bg-white transition-all'>
                 {/* later add my logo */}
-                <img onClick={()=>{navigate('/'); scrollTo(0,0)}} src={assets.logo} alt="lbazar logo" className="h-10 cursor-pointer"/>
+                <img onClick={()=>{navigate('/'); scrollTo(0,0)}} src={AccountLogo} alt="Account bazaar logo" className="h-10 cursor-pointer"/>
 
                     {/* Desktop Menu */}
                     <div className='hidden sm:flex items-center gap-4 md:gap-8 max-md:text-sm text-gray-800'>
