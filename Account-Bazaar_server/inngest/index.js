@@ -113,7 +113,7 @@ const syncUserCreation = inngest.createFunction(
         data: {
           email: data?.email_addresses[0]?.email_address,
           name: `${data?.first_name} ${data?.last_name}`,
-          image: data?.image_url
+          image: data?.image_url,
         }
       });
       return;
@@ -124,7 +124,7 @@ const syncUserCreation = inngest.createFunction(
         id: data.id,
         email: data?.email_addresses[0]?.email_address,
         name: `${data?.first_name} ${data?.last_name}`,
-        image: data?.image_url
+        image: data?.image_url,
       }
     });
 
