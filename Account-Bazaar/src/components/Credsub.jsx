@@ -1,9 +1,16 @@
+import { useAuth } from '@clerk/react'
 import { CirclePlus, X } from 'lucide-react'
 import React, { useState } from 'react'
 import toast from 'react-hot-toast'
+import { useDispatch } from 'react-redux'
+import { getAllPublicListing, getAllUserListing } from '../app/features/listingSlice'
+import api from '../configs/axios'
 
 const Credsub = ({ onClose, listing, onSubmit }) => {
   const [newField, setNewField] = useState("")
+
+  const {getToken} = useAuth()
+  const dispatch = useDispatch()
 
   const [credential, setCredential] = useState(() =>
     listing?.credentials?.length
@@ -24,8 +31,33 @@ const Credsub = ({ onClose, listing, onSubmit }) => {
 
     const handleSubmission = async (e) => {
         e.preventDefault()
-        if (onSubmit) onSubmit(listing?.id, credential)
-        if (onClose) onClose()
+        try {
+            // check if there is at least one field
+            if(credential.length === 0){
+                return toast.error("Please add at least one field")
+            }
+            // check all fields are  filled
+            for(const cred of credential){
+                if(!cred.value){
+                    return toast.error(`Please fill in thr ${cred.name} field`)
+                }
+            }
+            const confirm = window.confirm('Credential will be verified & changed post submission. Are you sure you want to submit?')
+            if(!confirm)return
+
+            const token = await getToken()
+
+                const { data } = await api.post(`/api/listing/add-credential`,{credential, listingId:listing.id},{headers :{Authorization:`Bearer ${token}`}})
+                toast.success(data.message)
+                dispatch(getAllUserListing({getToken}))
+                dispatch(getAllPublicListing())    
+                onClose()
+        } catch (error) {
+             toast.dismissAll()
+             toast.error(error?.response?.data?.message || error.message)
+        }
+        // if (onSubmit) onSubmit(listing?.id, credential)
+        // if (onClose) onClose()
     }
   return (
     <div className='fixed inset-0 bg-black/70 backdrop-blur bg-opacity-50 z-100 flex items-center justify-center sm:p-4'>

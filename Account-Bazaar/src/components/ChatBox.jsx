@@ -3,13 +3,20 @@ import { useDispatch, useSelector } from "react-redux";
 import { dummyChats } from "../assets/assets";
 import { Loader2Icon, Send, X } from "lucide-react";
 import { clearChat } from "../app/features/chatSlice";
+import { useAuth, useUser } from '@clerk/react'
 import {format} from 'date-fns'
+import toast from "react-hot-toast";
+import api from "../configs/axios";
+
 function ChatBox() {
 
-  const { listing, isOpen } = useSelector((state) => state.chat);
+  const { listing, isOpen ,chatId } = useSelector((state) => state.chat);
   const dispatch = useDispatch();
 
-  const user = { id: "user_2" };
+  const {getToken} = useAuth()
+  const {user} = useUser()
+
+ // const user = { id: "user_2" };
 
   const [chat, setChat] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -18,14 +25,30 @@ function ChatBox() {
   const [isSending, setIsSending] = useState(false);
 
   const fetchChat = async () => {
-    setChat(dummyChats[0]);
-    setMessages(dummyChats[0].messages);
-    setIsLoading(false);
+    // setChat(dummyChats[0]);
+    // setMessages(dummyChats[0].messages);
+    // setIsLoading(false);
+
+    try {
+      const token = await getToken()
+
+      const { data } = await api.post(`/api/chat`,{listingId:listing.id,chatId},{headers :{Authorization:`Bearer ${token}`}})
+      setChat(data?.chat)
+      setMessages(data?.chat?.messages || [])
+      setIsLoading(false)
+    } catch (error) {
+      toast.error(error?.response?.data?.message || error.message)
+      console.log(error)
+    }
   };
 
   useEffect(() => {
     if (listing) {
       fetchChat();
+      const interval = setInterval(()=>{
+        fetchChat()
+      },3000)
+      return ()=> clearInterval(interval)
     }
   }, [listing]);
 
@@ -48,8 +71,22 @@ function ChatBox() {
     const handleSendMessage = async (e)=>{
      e.preventDefault()
      if(!newmessages.trim() || isSending)return
-     setMessages([...messages,{id:Date.now(),chatId: chat.id, sender_id:user.id,message:  newmessages,createdAt:new Date()}])
-     setNewmessages("")
+    //  setMessages([...messages,{id:Date.now(),chatId: chat.id, sender_id:user.id,message:  newmessages,createdAt:new Date()}])
+    //  setNewmessages("")
+
+    try {
+      setIsSending(true)
+      const token = await getToken()
+      const { data } = await api.post(`/api/chat/send-message`,{chatId:chat.id,message: newmessages},{headers :{Authorization:`Bearer ${token}`}})
+      setMessages([...messages, data.newmessages])
+      setNewmessages("")
+      setIsSending(false)
+
+    } catch (error) {
+      toast.error(error?.response?.data?.message || error.message)
+      console.log(error)
+      setIsSending(false)
+    }
 
     }
     

@@ -18,9 +18,29 @@ import AllListings from './pages/admin-pages/AllListings'
 import Transactions from './pages/admin-pages/Transactions'
 import Withdrawal from './pages/admin-pages/Withdrawal'
 import CredentialVerify from './pages/admin-pages/CredentialVerify'
+import { useAuth, useUser } from '@clerk/react'
+import { useDispatch } from 'react-redux'
+import { useEffect } from 'react'
+import { getAllPublicListing, getAllUserListing } from './app/features/listingSlice'
 
 function App() {
   const {pathname} = useLocation();
+
+  // get token from clerk
+  const {getToken} = useAuth()
+  const {user,isLoaded} = useUser()
+
+  const dispatch = useDispatch()
+
+  useEffect(()=>{
+    dispatch(getAllPublicListing())
+  },[])
+
+   useEffect(()=>{
+    if(isLoaded && user){
+      dispatch(getAllUserListing({getToken}))
+    }
+  },[isLoaded,user])
   return (
     <div>
       <Toaster />
