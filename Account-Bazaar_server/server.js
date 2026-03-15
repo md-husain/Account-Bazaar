@@ -6,6 +6,7 @@ import {serve} from "inngest/express"
 import { inngest , functions } from "./inngest/index.js";
 import listingRouter from "./Routes/listingRoutes.js";
 import chatRouter from "./Routes/chatRoutes.js";
+import adminRouter from "./Routes/adminRoutes.js";
 
 
 
@@ -21,6 +22,8 @@ app.use('/api/inngest' , serve({client: inngest , functions}))
 
 app.use("/api/listing",listingRouter)
 app.use("/api/chat",chatRouter)
+app.use("/api/admin",adminRouter)
+
 
 
 const PORT = process.env.PORT || 3000

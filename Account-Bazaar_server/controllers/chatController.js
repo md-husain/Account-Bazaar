@@ -1,4 +1,4 @@
-import { prisma } from "../configs/prisma"
+import { prisma } from "../configs/prisma.js"
 
 // // controllers to geeting chats 
 export const getChat = async  (req,res) => {
